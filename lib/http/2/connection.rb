@@ -320,6 +320,8 @@ module HTTP2
       end
 
     rescue => e
+      puts "What error occured during receive? #{e}"
+      puts e.backtrace
       raise if e.is_a?(Error::Error)
       connection_error
     end
@@ -642,6 +644,10 @@ module HTTP2
     # @option error [Symbol] :compression_error
     # @param msg [String]
     def connection_error(error = :protocol_error, msg: nil)
+      p "called connection_error error: #{error}, msg: #{msg}"
+      p "Who is the caller?"
+      puts caller
+
       goaway(error) unless @state == :closed || @state == :new
 
       @state, @error = :closed, error
