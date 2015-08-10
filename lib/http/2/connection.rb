@@ -154,6 +154,11 @@ module HTTP2
       @pending_settings << payload
     end
 
+    # Sends a WINDOW_UPDATE frame
+    def window_update(increment)
+      send(type: :window_update, stream: 0, increment: increment)
+    end
+
     # Decodes incoming bytes into HTTP 2.0 frames and routes them to
     # appropriate receivers: connection frames are handled directly, and
     # stream frames are passed to appropriate stream objects.
@@ -626,6 +631,7 @@ module HTTP2
       stream.once(:close)  { @active_stream_count -= 1 }
       stream.on(:promise, &method(:promise)) if self.is_a? Server
       stream.on(:frame,   &method(:send))
+      stream.on(:window_update, &method(:window_update))
 
       @streams[id] = stream
     end
